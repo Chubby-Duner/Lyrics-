@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style> 
+        ul {
+            width: 600px;
+            float: left;
+            transition: all 1s linear;
+            font-size: 16px;
+        }
+        
+        ul li {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        audio {
+            float: left;
+            outline: none;
+        }
+        
+        span {
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <div id="app">
+        <!-- {{lyricArr}} -->
+        <!-- 一个对象，持有注册过 ref attribute 的所有 DOM 元素和组件实例。 -->
+        <ul ref="lyricUL">
+            <li v-for="(item,index) in lyricArr" :style="{color: lyricIndex === index ? 'orange' : '#dedede'}" :data-index="index" ref="lyric" @dblclick="selectorLyc(item.time)">{{item.lyc}}&nbsp;&nbsp;&nbsp;<span>{{item.time}}</span></li>
+        </ul>
+        <audio @timeupdate="lycControl" src="../药水歌.mp3" controls loop ref="audio"></audio>
+    </div>
+
+    <script>
+        const lyric =
+            "[00:00.000] 作曲 : JWORD\n[00:01.000] 作词 : JWORD\n[00:04.224]编曲：JWORD\n[00:13.223]我出门总是带着五瓶药水\n[00:15.692]手中的卡牌不停切换到位\n[00:18.641]别跟我撒娇也别叫我宝贝\n[00:21.442]就算我一个人也不会后退\n[00:24.274]我出门总是带着五瓶药水\n[00:27.006]手中的卡牌不停切换到位\n[00:30.007]别跟我撒娇也别叫我宝贝\n[00:32.773]就算我一个人也不会后退\n[00:35.724]我以前根本没想过\n[00:37.489]我也能开讲座\n[00:38.806]在直播间里顺着找回我的小角落\n[00:41.641]有人不喜欢我但你也得到了快乐\n[00:44.524]那背负骂名的事就让我一个人受吧\n[00:47.405]你只知道我爱假哭\n[00:49.407]但你不知道我也有自己的难处\n[00:52.790]就在你喷完了觉得很舒服\n[00:55.575]直播间里的玛莎拉蒂\n[00:57.324]去参加下个party(派对)\n[00:58.775]如果你们真的讨厌我\n[01:00.591]就努力比我过得更好\n[01:02.409]要趁早 抓住那些机会\n[01:04.456]让你吃得更饱\n[01:05.608]勇敢地向前跑不管那些质疑\n[01:08.225]不过都是一道道的试题而已\n[01:10.225]要做就做他们不敢做的事\n[01:12.758]当勇士有了心它变成不可摧的志\n[01:15.490]十块的电子表它时间也一样地转\n[01:18.574]能忍受别人不能忍的才能看到岸\n[01:21.241]我出门总是带着五瓶药水\n[01:24.192]手中的卡牌不停切换到位\n[01:27.274]别跟我撒娇也别叫我宝贝\n[01:29.992]就算我一个人也不会后退\n[01:32.891]我出门总是带着五瓶药水\n[01:35.680]手中的卡牌不停切换到位\n[01:38.608]别跟我撒娇也别叫我宝贝\n[01:41.390]就算我一个人也不会后退\n[01:44.193]音乐总监：陈令韬\n[01:45.193]混音：时俊峰/小武\n"
+
+        new Vue({
+            el: '#app',
+            data: {
+                lyric,
+                lyricIndex: 0
+            },
+            computed: {
+                lyricArr() {
+                    let arr = this.lyric.split(/\n/)
+                        // 正则组匹配
+                    let res = arr.map(l => {
+                        /\[(\d+):(\d+\.\d+)\](.+)/.test(l)
+                            // console.log(RegExp.$1, RegExp.$2, RegExp.$3)
+                        return {
+                            time: parseInt(RegExp.$1) * 60 + parseFloat(RegExp.$2),
+                            lyc: RegExp.$3
+                        }
+                    })
+                    console.log(res);
+                    return res
+                }
+            },
+            methods: {
+                lycControl() {
+                    // 获取当前时间
+                    let currentTime = this.$refs.audio.currentTime;
+                    console.log(currentTime);
+                    for (let i = 0; i < this.lyricArr.length; i++) {
+                        // // 获取下一句歌词的时间
+                        // let nextTime = 
+                            if (currentTime > this.lyricArr[i].time) {
+                                // 把当前li的index重新赋值给index
+                                const index = this.$refs.lyric[i].dataset.index
+                                if (i === parseInt(index)) {
+                                    // 显示相对应li的index
+                                    this.lyricIndex = i
+                                        // 移动ul
+                                    this.$refs.lyricUL.style.transform = `translateY(${-(i * 20)}px)`
+                                }
+                            }
+                    }
+                },
+                // 双击歌词改变进度
+                selectorLyc(time) {
+                    this.$refs.audio.currentTime = time;
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
